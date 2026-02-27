@@ -6,3 +6,7 @@
     dracula --default --prefersdark,
     cupcake;
 }
+
+html[data-theme="cupcake"] .logo-img {
+  filter: invert(1);
+}
