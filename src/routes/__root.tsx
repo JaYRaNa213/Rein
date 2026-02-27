@@ -7,7 +7,9 @@ import {
 } from "@tanstack/react-router"
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { useEffect } from "react"
+import { Moon, Sun } from "lucide-react"
 import { APP_CONFIG, THEMES } from "../config"
+import { useTheme } from "../hooks/useTheme"
 import "../styles.css"
 
 export const Route = createRootRoute({
@@ -32,13 +34,7 @@ function RootComponent() {
 }
 
 function ThemeInit() {
-	useEffect(() => {
-		if (typeof localStorage === "undefined") return
-		const saved = localStorage.getItem(APP_CONFIG.THEME_STORAGE_KEY)
-		const theme =
-			saved === THEMES.LIGHT || saved === THEMES.DARK ? saved : THEMES.DEFAULT
-		document.documentElement.setAttribute("data-theme", theme)
-	}, [])
+	useTheme() // Hook handles initialization and storage sync
 	return null
 }
 
@@ -69,34 +65,50 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 }
 
 function Navbar() {
+	const { theme, toggleTheme } = useTheme()
+
 	return (
 		<div className="navbar bg-base-100 border-b border-base-300 min-h-12 h-12 z-50 px-4">
 			<div className="flex-1">
-				<Link to="/trackpad" className="btn btn-ghost text-xl normal-case">
+				<Link to="/trackpad" className="btn btn-ghost text-xl normal-case px-2">
 					<img
 						src="/app_icon/IconLine.png"
-						height={32}
-						width={32}
+						height={28}
+						width={28}
 						alt="Rein logo"
+						className={theme === THEMES.LIGHT ? "invert" : ""}
 					/>
-					Rein
+					<span className="ml-2 hidden sm:inline">Rein</span>
 				</Link>
 			</div>
-			<div className="flex-none flex gap-2">
+			<div className="flex-none flex items-center gap-1 sm:gap-2">
 				<Link
 					to="/trackpad"
-					className="btn btn-ghost btn-sm"
+					className="btn btn-ghost btn-sm px-2 sm:px-4"
 					activeProps={{ className: "btn-active bg-base-200" }}
 				>
 					Trackpad
 				</Link>
 				<Link
 					to="/settings"
-					className="btn btn-ghost btn-sm"
+					className="btn btn-ghost btn-sm px-2 sm:px-4"
 					activeProps={{ className: "btn-active bg-base-200" }}
 				>
 					Settings
 				</Link>
+				<div className="divider divider-horizontal mx-0 sm:mx-1" />
+				<button
+					type="button"
+					onClick={toggleTheme}
+					className="btn btn-ghost btn-sm btn-circle"
+					aria-label="Toggle theme"
+				>
+					{theme === THEMES.LIGHT ? (
+						<Moon size={18} className="text-primary" />
+					) : (
+						<Sun size={18} className="text-yellow-400" />
+					)}
+				</button>
 			</div>
 		</div>
 	)

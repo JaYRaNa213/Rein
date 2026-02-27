@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import QRCode from "qrcode"
 import { useEffect, useState } from "react"
-import { APP_CONFIG, THEMES } from "../config"
+import { THEMES } from "../config"
+import { useTheme } from "../hooks/useTheme"
+import { useSettings } from "../hooks/useSettings"
 import serverConfig from "../server-config.json"
 
 export const Route = createFileRoute("/settings")({
@@ -17,37 +19,11 @@ function SettingsPage() {
 
 	const serverConfigChanged = frontendPort !== originalPort
 
-	// Client Side Settings (LocalStorage)
-	const [invertScroll, setInvertScroll] = useState(() => {
-		if (typeof window === "undefined") return false
-		try {
-			const saved = localStorage.getItem("rein_invert")
-			return saved === "true"
-		} catch {
-			return false
-		}
-	})
-
-	const [sensitivity, setSensitivity] = useState(() => {
-		if (typeof window === "undefined") return 1.0
-		const saved = localStorage.getItem("rein_sensitivity")
-		const parsed = saved ? Number.parseFloat(saved) : Number.NaN
-		return Number.isFinite(parsed) ? parsed : 1.0
-	})
-
-	const [theme, setTheme] = useState(() => {
-		if (typeof window === "undefined") return THEMES.DEFAULT
-		try {
-			const saved = localStorage.getItem(APP_CONFIG.THEME_STORAGE_KEY)
-			return saved === THEMES.LIGHT || saved === THEMES.DARK
-				? saved
-				: THEMES.DEFAULT
-		} catch {
-			return THEMES.DEFAULT
-		}
-	})
-
 	const [qrData, setQrData] = useState("")
+
+	// Centralized Theme & Settings Management
+	const { theme, setTheme } = useTheme()
+	const { sensitivity, setSensitivity, invertScroll, setInvertScroll } = useSettings()
 
 	// Load initial state (IP is not stored in localStorage; only sensitivity, invert, theme are client settings)
 	const [authToken, setAuthToken] = useState(() => {
@@ -111,22 +87,6 @@ function SettingsPage() {
 			}
 		}
 	}, [])
-
-	// Effect: Update LocalStorage when settings change
-	useEffect(() => {
-		localStorage.setItem("rein_sensitivity", String(sensitivity))
-	}, [sensitivity])
-
-	useEffect(() => {
-		localStorage.setItem("rein_invert", JSON.stringify(invertScroll))
-	}, [invertScroll])
-
-	// Effect: Theme
-	useEffect(() => {
-		if (typeof window === "undefined") return
-		localStorage.setItem(APP_CONFIG.THEME_STORAGE_KEY, theme)
-		document.documentElement.setAttribute("data-theme", theme)
-	}, [theme])
 
 	// Generate QR when IP changes or Token changes
 	useEffect(() => {

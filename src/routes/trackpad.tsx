@@ -7,6 +7,7 @@ import { ExtraKeys } from "../components/Trackpad/ExtraKeys"
 import { TouchArea } from "../components/Trackpad/TouchArea"
 import { useRemoteConnection } from "../hooks/useRemoteConnection"
 import { useTrackpadGesture } from "../hooks/useTrackpadGesture"
+import { useSettings } from "../hooks/useSettings"
 
 export const Route = createFileRoute("/trackpad")({
 	component: TrackpadPage,
@@ -21,18 +22,7 @@ function TrackpadPage() {
 	const [keyboardOpen, setKeyboardOpen] = useState(false)
 	const [extraKeysVisible, setExtraKeysVisible] = useState(true)
 
-	// Load Client Settings
-	const [sensitivity] = useState(() => {
-		if (typeof window === "undefined") return 1.0
-		const s = localStorage.getItem("rein_sensitivity")
-		return s ? Number.parseFloat(s) : 1.0
-	})
-
-	const [invertScroll] = useState(() => {
-		if (typeof window === "undefined") return false
-		const s = localStorage.getItem("rein_invert")
-		return s ? JSON.parse(s) : false
-	})
+	const { sensitivity, invertScroll } = useSettings()
 
 	const { status, send, sendCombo } = useRemoteConnection()
 	// Pass sensitivity and invertScroll to the gesture hook

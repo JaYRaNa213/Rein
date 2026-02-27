@@ -8,6 +8,7 @@ import {
 	Keyboard,
 	X,
 } from "lucide-react"
+import { useTheme } from "@/hooks/useTheme"
 
 interface ControlBarProps {
 	scrollMode: boolean
@@ -55,13 +56,14 @@ export const ControlBar: React.FC<ControlBarProps> = ({
 	const ModifierButton = () => {
 		const isHold = modifier === "Hold"
 		const label = getModifierLabel()
+		const { theme } = useTheme()
 
 		return (
 			<button
 				type="button"
 				className={`flex items-center justify-center w-[54px] h-[44px] transition-all duration-100 ${
 					isHold
-						? "bg-neutral-900 hover:bg-neutral-800 active:bg-neutral-800"
+						? "bg-primary text-primary-content font-black shadow-inner"
 						: "bg-base-100 hover:bg-base-300"
 				}`}
 				onPointerDown={(e) => handleInteraction(e, onModifierToggle)}

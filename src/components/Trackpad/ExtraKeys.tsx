@@ -16,6 +16,9 @@ import {
 } from "react-icons/fa"
 import { MdSpaceBar } from "react-icons/md"
 
+import { useTheme } from "../../hooks/useTheme"
+import { THEMES } from "../../config"
+
 interface ExtraKeysProps {
 	sendKey: (key: string) => void
 	onInputFocus: () => void
@@ -23,13 +26,14 @@ interface ExtraKeysProps {
 
 export const ExtraKeys: React.FC<ExtraKeysProps> = ({ sendKey }) => {
 	const [isPlaying, setIsPlaying] = useState(false)
+	const { theme } = useTheme()
 
 	const handlePlayPause = () => {
 		sendKey(isPlaying ? "audiopause" : "audioplay")
 		setIsPlaying(!isPlaying)
 	}
 
-	const keys = [
+	const allKeys = [
 		{ icon: <FaVolumeMute />, key: "audiomute", type: "media", label: "Mute" },
 		{
 			icon: <FaVolumeDown />,
@@ -104,6 +108,10 @@ export const ExtraKeys: React.FC<ExtraKeysProps> = ({ sendKey }) => {
 		{ label: "F12", key: "f12", type: "fn" },
 	]
 
+	// Filter out media keys in light mode as requested
+	const keys =
+		theme === THEMES.LIGHT ? allKeys.filter((k) => k.type !== "media") : allKeys
+
 	const getBtnClass = (type?: string) => {
 		switch (type) {
 			case "arrow":
@@ -113,7 +121,8 @@ export const ExtraKeys: React.FC<ExtraKeysProps> = ({ sendKey }) => {
 			case "fn":
 				return "btn-neutral btn-outline text-xs"
 			case "media":
-				return "btn-accent btn-outline"
+				// Solid accent color for better visibility in dark mode, hidden in light mode
+				return "btn-accent"
 			case "action":
 				return "btn-neutral"
 			default:
@@ -122,8 +131,8 @@ export const ExtraKeys: React.FC<ExtraKeysProps> = ({ sendKey }) => {
 	}
 
 	return (
-		<div className="grid grid-cols-6 grid-rows-6 gap-1 p-1 w-full bg-base-300">
-			{keys.map((k, i) => (
+		<div className="grid grid-cols-6 gap-1 p-1 w-full bg-base-300">
+			{keys.map((k) => (
 				<button
 					type="button"
 					key={k.key}
