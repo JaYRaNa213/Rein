@@ -6,14 +6,14 @@ const http = require('http');
 let mainWindow;
 let serverProcess;
 
-// ✅ Prevent multiple instances
+// Prevent multiple instances
 const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
   process.exit(0);
 }
 
-// ✅ Wait until server is ready
+// Wait until server is ready
 function waitForServer(url) {
   return new Promise((resolve) => {
     const check = () => {
@@ -25,7 +25,7 @@ function waitForServer(url) {
   });
 }
 
-// ✅ Start Nitro server (production)
+// Start Nitro server (production)
 function startServer() {
   return new Promise((resolve) => {
     const serverPath = path.join(
@@ -39,8 +39,8 @@ function startServer() {
     console.log("Starting server from:", serverPath);
 
     serverProcess = spawn('node', [serverPath], {
-      stdio: 'ignore',       // ✅ no terminal
-      windowsHide: true,     // ✅ hide CMD
+      stdio: 'ignore',       // no terminal
+      windowsHide: true,     // hide CMD
       env: {
         ...process.env,
         HOST: '127.0.0.1',
@@ -52,39 +52,36 @@ function startServer() {
   });
 }
 
-// ✅ Create window
+// Create window
 function createWindow() {
   if (mainWindow) return;
 
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    show: false, // prevent flicker
+    show: false,
   });
 
   mainWindow.loadURL('http://localhost:3000');
 
-  // ✅ Show when ready
+  // Show when ready
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
 
-  // ❌ No auto DevTools
-  // mainWindow.webContents.openDevTools();
-
-  // ✅ Debug only if needed
+  // Debug only if needed
   mainWindow.webContents.on('did-fail-load', (e, code, desc) => {
     console.log("LOAD FAILED:", code, desc);
   });
 }
 
-// ✅ App start
+// App start
 app.whenReady().then(async () => {
   await startServer();
   createWindow();
 });
 
-// ✅ Cleanup
+// Cleanup
 app.on('window-all-closed', () => {
   if (serverProcess) serverProcess.kill();
   if (process.platform !== 'darwin') app.quit();
