@@ -26,7 +26,7 @@ export async function getLocalIp(): Promise<string> {
 			finish("127.0.0.1")
 		}, 1000)
 
-		socket.connect(1, "10.255.255.255")
+		socket.connect(1, "1.1.1.1")
 
 		socket.on("connect", () => {
 			const addr = socket.address()
