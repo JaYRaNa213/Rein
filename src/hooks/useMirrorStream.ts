@@ -6,6 +6,7 @@ export function useMirrorStream(
 	wsRef: React.RefObject<WebSocket | null>,
 	canvasRef: React.RefObject<HTMLCanvasElement | null>,
 	status: "connecting" | "connected" | "disconnected",
+	enabled: boolean,
 ) {
 	const [hasFrame, setHasFrame] = useState(false)
 	const frameRef = useRef<ImageBitmap | null>(null)
@@ -65,8 +66,11 @@ export function useMirrorStream(
 
 	useEffect(() => {
 		const ws = wsRef.current
-		if (!ws || status !== "connected") {
+		if (!ws || status !== "connected" || !enabled) {
 			setHasFrame(false)
+			if (ws && status === "connected" && !enabled) {
+				ws.send(JSON.stringify({ type: "stop-mirror" }))
+			}
 			return
 		}
 
@@ -82,7 +86,7 @@ export function useMirrorStream(
 			if (rAFRef.current) cancelAnimationFrame(rAFRef.current)
 			if (frameRef.current) frameRef.current.close()
 		}
-	}, [wsRef, status, handleMessage])
+	}, [wsRef, status, handleMessage, enabled])
 
 	return { hasFrame }
 }

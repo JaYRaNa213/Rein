@@ -9,21 +9,25 @@ interface ScreenMirrorProps {
 	scrollMode: boolean
 	isTracking: boolean
 	handlers: React.HTMLAttributes<HTMLDivElement>
+	enabled: boolean
 }
 
 const TEXTS = {
 	WAITING: "Waiting for screen...",
 	AUTOMATIC: "Mirroring will start automatically",
+	DISABLED: "Screen Mirroring Disabled",
+	ENABLE_PROMPT: "Enable in control bar to view screen",
 }
 
 export const ScreenMirror = ({
 	scrollMode,
 	isTracking,
 	handlers,
+	enabled,
 }: ScreenMirrorProps) => {
 	const { wsRef, status } = useConnection()
 	const canvasRef = useRef<HTMLCanvasElement>(null)
-	const { hasFrame } = useMirrorStream(wsRef, canvasRef, status)
+	const { hasFrame } = useMirrorStream(wsRef, canvasRef, status, enabled)
 
 	return (
 		<div className="absolute inset-0 flex items-center justify-center bg-black overflow-hidden select-none touch-none">
@@ -31,18 +35,27 @@ export const ScreenMirror = ({
 			<canvas
 				ref={canvasRef}
 				className={`w-full h-full object-contain transition-opacity duration-500 ${
-					hasFrame ? "opacity-100" : "opacity-0"
+					hasFrame && enabled ? "opacity-100" : "opacity-0"
 				}`}
 			/>
 
 			{/* Standby UI */}
-			{!hasFrame && (
+			{(!hasFrame || !enabled) && (
 				<div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 gap-4">
-					<div className="loading loading-spinner loading-lg text-primary" />
-					<div className="text-center px-6">
-						<p className="font-semibold text-lg">{TEXTS.WAITING}</p>
-						<p className="text-sm opacity-60">{TEXTS.AUTOMATIC}</p>
-					</div>
+					{enabled ? (
+						<>
+							<div className="loading loading-spinner loading-lg text-primary" />
+							<div className="text-center px-6">
+								<p className="font-semibold text-lg">{TEXTS.WAITING}</p>
+								<p className="text-sm opacity-60">{TEXTS.AUTOMATIC}</p>
+							</div>
+						</>
+					) : (
+						<div className="text-center px-6">
+							<p className="font-semibold text-lg">{TEXTS.DISABLED}</p>
+							<p className="text-sm opacity-60">{TEXTS.ENABLE_PROMPT}</p>
+						</div>
+					)}
 				</div>
 			)}
 

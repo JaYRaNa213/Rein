@@ -8,13 +8,16 @@ import {
 	ClipboardPaste,
 	Keyboard,
 	X,
+	Monitor,
 } from "lucide-react"
 
 interface ControlBarProps {
 	scrollMode: boolean
+	mirrorEnabled: boolean
 	modifier: ModifierState
 	buffer: string
 	onToggleScroll: () => void
+	onToggleMirror: () => void
 	onCopy: () => void
 	onPaste: () => void
 	onLeftClick: () => void
@@ -28,8 +31,10 @@ interface ControlBarProps {
 
 export const ControlBar: React.FC<ControlBarProps> = ({
 	scrollMode,
+	mirrorEnabled,
 	modifier,
 	onToggleScroll,
+	onToggleMirror,
 	onLeftClick,
 	onRightClick,
 	onCopy,
@@ -88,6 +93,15 @@ export const ControlBar: React.FC<ControlBarProps> = ({
 				onPointerDown={(e) => handleInteraction(e, onToggleScroll)}
 			>
 				<MousePointer2 size={20} />
+			</button>
+
+			<button
+				type="button"
+				className={`${baseButton} ${mirrorEnabled ? "text-primary" : "opacity-30"}`}
+				onPointerDown={(e) => handleInteraction(e, onToggleMirror)}
+				aria-label="Toggle Screen Mirror"
+			>
+				<Monitor size={20} />
 			</button>
 
 			<button

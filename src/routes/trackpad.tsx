@@ -35,6 +35,15 @@ function TrackpadPage() {
 		const s = localStorage.getItem("rein_invert")
 		return s ? JSON.parse(s) : false
 	})
+	const [mirrorEnabled, setMirrorEnabled] = useState(() => {
+		if (typeof window === "undefined") return true
+		const s = localStorage.getItem("rein_mirror_enabled")
+		return s !== null ? JSON.parse(s) : true
+	})
+
+	useEffect(() => {
+		localStorage.setItem("rein_mirror_enabled", JSON.stringify(mirrorEnabled))
+	}, [mirrorEnabled])
 
 	const { send, sendCombo } = useRemoteConnection()
 	// Pass sensitivity and invertScroll to the gesture hook
@@ -228,6 +237,7 @@ function TrackpadPage() {
 					isTracking={isTracking}
 					scrollMode={scrollMode}
 					handlers={handlers}
+					enabled={mirrorEnabled}
 				/>
 				{bufferText !== "" && <BufferBar bufferText={bufferText} />}
 			</div>
@@ -238,11 +248,13 @@ function TrackpadPage() {
 					onCopy={handleCopy}
 					onPaste={handlePaste}
 					scrollMode={scrollMode}
+					mirrorEnabled={mirrorEnabled}
 					modifier={modifier}
 					buffer={buffer.join(" + ")}
 					keyboardOpen={keyboardOpen}
 					extraKeysVisible={extraKeysVisible}
 					onToggleScroll={() => setScrollMode(!scrollMode)}
+					onToggleMirror={() => setMirrorEnabled(!mirrorEnabled)}
 					onLeftClick={() => handleClick("left")}
 					onRightClick={() => handleClick("right")}
 					onKeyboardToggle={toggleKeyboard}
